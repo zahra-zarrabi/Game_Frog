@@ -3,15 +3,13 @@ import sys
 import time
 
 import pygame
-pygame.init()
 
 
 class Frog:
-    num_frog=3
+    num_frog=5
     def __init__(self):
         self.x = Game.width/2
         self.y= Game.height-75
-        self.lives = 3
         self.image=pygame.image.load('image/frog_arrived.png')
         self.rect = self.image.get_rect()
         print(self.rect)
@@ -23,8 +21,8 @@ class Frog:
         self.area=Game.screen.blit(self.image,(self.x,self.y))
 
     def moveFrog(self, x, y):
-        self.x +=x*37
-        self.y +=y*37
+        self.x +=x*38
+        self.y +=y*38
     def new(self):
         self.x = Game.width / 2
         self.y = Game.height - 75
@@ -32,7 +30,7 @@ class Platform:
     def __init__(self, line):
         super().__init__()
         self.x= random.randint(0,Game.width)
-        self.y = 50 * line
+        self.y =50 * line
         # self.y = 50
         self.image=pygame.image.load('image/tronco.png')
         self.rect = self.image.get_rect()
@@ -51,18 +49,19 @@ class Platform:
 class Car:
     cars = ['image/car2.png', 'image/car3.png', 'image/car4.png', 'image/car1.png']
     def __init__(self,line):
-        self.x=random.randint(0,Game.width)
+        self.x =random.randint(0,Game.width)
+
         self.y= 230 + 50 * line
         self.image=pygame.image.load(random.choice(Car.cars))
         self.rect = self.image.get_rect()
-        self.speed=2
+        self.speed=3
         self.area = Game.screen.blit(self.image, (self.x, self.y))
     def show(self):
         self.area=Game.screen.blit(self.image,(self.x,self.y))
     def move(self):
         if self.x > Game.width:
             self.x = 0
-        self.x+=self.speed
+        self.x += self.speed
 
 class Game:
     width = 448
@@ -72,7 +71,6 @@ class Game:
     clock = pygame.time.Clock()
     background = pygame.image.load('image/bg.png')
     speed = 2
-
     @staticmethod
     def play(wood,cars):
         while True:
@@ -94,33 +92,41 @@ class Game:
                 frog.x=0
             elif frog.y>Game.height-65:
                 frog.y=Game.height - 60
+
             cars_colid = []
             for n in range(4):
                 cars_colid.append(frog.area.colliderect(cars[n].area))
             if any(cars_colid):
-                sound = pygame.mixer.Sound("music/boom_antigo.wav")
-                pygame.mixer.Sound.play(sound)
+                pygame.mixer.music.load("music/boom_antigo.wav")
+                pygame.mixer.music.play()
+                frog.x -= 100
                 frog.num_frog-=1
+
+                print("frog.num_frog1", frog.num_frog)
+
+
 
 
             wood_colid = []
-            for g in range(4):
+            for g in range(7):
                 wood_colid.append(frog.area.colliderect(wood[g].area))
             if any(wood_colid):
                 frog.x += Game.speed
                 frog.on_wood=True
             elif Game.height-350>frog.y:
-                sound = pygame.mixer.Sound("music/agua.wav")
-                pygame.mixer.Sound.play(sound)
+                pygame.mixer.music.load("music/agua.wav")
+                pygame.mixer.music.play()
                 Frog.num_frog-=1
                 frog.new()
+
+
 
             f = []
             for i in range(4):
                 if frog.y < 20:
                     f.append(i)
                     for file in f:
-                        print(file)
+                        frog.show()
                     frog.new()
 
 
@@ -163,11 +169,15 @@ if __name__=="__main__":
     wood=[]
     for w in range(4):
         wood.append(Platform(int(w)+1))
+        wood.append(Platform(int(w) + 1))
     frog = Frog()
     cars = []
     for m in range(4):
         cars.append(Car(int(m)+1))
 
+    pygame.init()
     text = pygame.font.Font('COMIC.TTF', 50)
+    # pygame.font.init()
     text_frog = pygame.font.Font('COMIC.TTF', 17)
+
     Game.play(wood,cars)
